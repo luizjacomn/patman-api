@@ -4,3 +4,7 @@ spring:
             format_sql: true
 
         show-sql: true
+
+logging:
+    level:
+        com.luizjacomn.patmanapi: DEBUG

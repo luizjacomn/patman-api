@@ -1,0 +1,40 @@
+package com.luizjacomn.patmanapi.patient.controller.v1;
+
+import com.luizjacomn.patmanapi.patient.controller.v1.dto.PatientRequest;
+import com.luizjacomn.patmanapi.patient.controller.v1.mapper.PatientRequestMapper;
+import com.luizjacomn.patmanapi.patient.model.entity.Patient;
+import com.luizjacomn.patmanapi.patient.service.PatientService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+
+@RestController
+@RequestMapping("/patients")
+@RequiredArgsConstructor
+public class PatientController {
+
+    private final PatientService patientService;
+
+    private final PatientRequestMapper patientRequestMapper;
+
+    @PostMapping
+    public ResponseEntity<Void> save(@RequestBody @Valid PatientRequest request) {
+        Patient pacienteSalvo = patientService.salvar(patientRequestMapper.to(request));
+
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(pacienteSalvo.getId())
+            .toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
+}
