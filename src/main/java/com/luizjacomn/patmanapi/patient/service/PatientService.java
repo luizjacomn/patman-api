@@ -66,4 +66,16 @@ public class PatientService {
             .orElseThrow(() -> new ResourceNotFoundException("id = " + id));
     }
 
+    /**
+     * Método responsável por deletar uma paciente pelo seu id (UUID)
+     * @param id do paciente a ser deletado
+     * @throws {@link ResourceNotFoundException} caso não encontre
+     */
+    @Transactional
+    public void deletar(UUID id) {
+        this.buscarPorId(id);
+
+        patientRepository.deleteById(id);
+    }
+
 }

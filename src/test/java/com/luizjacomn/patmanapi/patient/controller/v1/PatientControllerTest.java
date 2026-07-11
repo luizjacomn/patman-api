@@ -25,12 +25,12 @@ import java.time.LocalDate;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Sql(
     scripts = { "/scripts/delete.sql", "/scripts/patient_controller_test.sql" },
@@ -129,7 +129,7 @@ class PatientControllerTest extends BaseTest {
             // assert
             resultActions
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message" ).value("Erro desconhecido. Por favor, tente novamente em instantes. Caso o erro persista, entre em contato com o suporte!"));
+                .andExpect(jsonPath("$.message").value("Erro desconhecido. Por favor, tente novamente em instantes. Caso o erro persista, entre em contato com o suporte!"));
         }
 
     }
@@ -176,7 +176,7 @@ class PatientControllerTest extends BaseTest {
             // assert
             resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message" ).value("Recurso não encontrado para o filtro informado: id = " + id));
+                .andExpect(jsonPath("$.message").value("Recurso não encontrado para o filtro informado: id = " + id));
 
             assertThat(patientRepository.findAll().stream().noneMatch(patient -> patient.getName().equals("Fulano Edit"))).isTrue();
         }
@@ -264,7 +264,46 @@ class PatientControllerTest extends BaseTest {
             // assert
             resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message" ).value("Recurso não encontrado para o filtro informado: id = f5b45923-0749-48ec-9db8-e2941db149a1"));
+                .andExpect(jsonPath("$.message").value("Recurso não encontrado para o filtro informado: id = f5b45923-0749-48ec-9db8-e2941db149a1"));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Delete patients tests")
+    class Delete {
+
+        @SneakyThrows
+        @Test
+        void shouldDeletePatient() {
+            // arrange
+            RequestBuilder request = MockMvcRequestBuilders.delete(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149ac");
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isNoContent());
+
+            assertThat(patientRepository.findById(UUID.fromString("f5b45923-0749-48ec-9db8-e2941db149ac"))).isNotPresent();
+        }
+
+        @SneakyThrows
+        @Test
+        void shouldThrowExceptionWhenPatientNotExists() {
+            // arrange
+            String id = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders.delete(URI.concat("/{id}"), id);
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Recurso não encontrado para o filtro informado: id = " + id));
         }
 
     }
