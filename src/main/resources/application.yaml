@@ -21,4 +21,4 @@ flyway:
 
 logging:
     level:
-        com.luizjacomn.patmanapi: DEBUG
+        com.luizjacomn.patmanapi: WARN
