@@ -31,6 +31,15 @@ public class PatientService {
         return patientRepository.save(patient);
     }
 
+    @Transactional
+    public void editar(UUID id, Patient patient) {
+        this.buscarPorId(id);
+
+        patient.setId(id);
+
+        patientRepository.save(patient);
+    }
+
     /**
      * Método responsável por listar os pacientes cadastrados (pode filtrar dados)
      * @param patientFilter filtro para os dados (opcionais)

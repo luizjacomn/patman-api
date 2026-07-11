@@ -53,6 +53,12 @@ public class PatientController {
         return ResponseEntity.created(location).build();
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping("/{id}")
+    public void save(@PathVariable UUID id, @RequestBody @Valid PatientRequest request) {
+        patientService.editar(id, patientRequestMapper.to(request));
+    }
+
     @GetMapping
     public List<PatientResponse> list(PatientFilter patientFilter) {
         return patientResponseMapper.toList(patientService.listar(patientFilter));

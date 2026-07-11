@@ -2,6 +2,8 @@ package com.luizjacomn.patmanapi.patient.controller.v1;
 
 import com.luizjacomn.patmanapi.BaseTest;
 import com.luizjacomn.patmanapi.patient.controller.v1.dto.PatientRequest;
+import com.luizjacomn.patmanapi.patient.model.entity.Patient;
+import com.luizjacomn.patmanapi.patient.repository.PatientRepository;
 import com.luizjacomn.patmanapi.shared.util.ObjectUtils;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
@@ -19,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.hasItem;
@@ -26,6 +30,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Sql(
     scripts = { "/scripts/delete.sql", "/scripts/patient_controller_test.sql" },
@@ -34,6 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PatientControllerTest extends BaseTest {
 
     private static final String URI = "/patients";
+
+    @Autowired
+    private PatientRepository patientRepository;
 
     @Nested
     @DisplayName("Save patients tests")
@@ -122,6 +130,55 @@ class PatientControllerTest extends BaseTest {
             resultActions
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message" ).value("Erro desconhecido. Por favor, tente novamente em instantes. Caso o erro persista, entre em contato com o suporte!"));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Edit patients tests")
+    class Edit {
+
+        @SneakyThrows
+        @Test
+        void shouldEditPatient() {
+            // arrange
+            RequestBuilder request = MockMvcRequestBuilders.put(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149ac")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new PatientRequest("Fulano Edit", "207.989.070-02", LocalDate.now().minusYears(18), null, null)));
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isNoContent());
+
+            Patient patientEdited = patientRepository.findById(UUID.fromString("f5b45923-0749-48ec-9db8-e2941db149ac")).orElseThrow();
+            assertThat(patientEdited.getName()).isEqualTo("Fulano Edit");
+            assertThat(patientEdited.getBirthDate()).isNotEqualTo(LocalDate.now());
+        }
+
+        @SneakyThrows
+        @Test
+        void shouldThrowExceptionWhenPatientNotExists() {
+            // arrange
+            String id = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders.put(URI.concat("/{id}"), id)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new PatientRequest("Fulano Edit", "207.989.070-02", LocalDate.now().minusYears(18), null, null)));
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message" ).value("Recurso não encontrado para o filtro informado: id = " + id));
+
+            assertThat(patientRepository.findAll().stream().noneMatch(patient -> patient.getName().equals("Fulano Edit"))).isTrue();
         }
 
     }
