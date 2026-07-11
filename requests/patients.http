@@ -1,9 +1,13 @@
 @baseUrl=http://localhost:8080/v1/patients
+@user=admin
+@pass=patman
+@auth= Basic {{user}} {{pass}}
 
 ## 1. Save
 ### 1.1. Save with success
 POST {{baseUrl}} HTTP/1.1
 content-type: application/json
+Authorization: {{auth}}
 
 {
     "name": "Fulano",
@@ -16,6 +20,7 @@ content-type: application/json
 ### 1.2. Save with validation fail
 POST {{baseUrl}} HTTP/1.1
 content-type: application/json
+Authorization: {{auth}}
 
 {
     "name": "Fulano",
@@ -29,6 +34,7 @@ content-type: application/json
 ### 2.1. Edit with success
 PUT {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b7809e HTTP/1.1
 content-type: application/json
+Authorization: {{auth}}
 
 {
     "name": "Fulano Edited",
@@ -41,6 +47,7 @@ content-type: application/json
 ### 2.2. Edit without data
 PUT {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b78091 HTTP/1.1
 content-type: application/json
+Authorization: {{auth}}
 
 {
     "name": "Fulano Edited",
@@ -53,20 +60,26 @@ content-type: application/json
 ## 3. List
 ### 3.1. List all
 GET {{baseUrl}}
+Authorization: {{auth}}
 
 ### 3.2. List filtered data
 GET {{baseUrl}}?name=ful&cpf=54
+Authorization: {{auth}}
 
 ## 4. Find
 ### 4.1. Finding by id
 GET {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b7809e
+Authorization: {{auth}}
 
 ### 4.2. Finding without data
 GET {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b78091
+Authorization: {{auth}}
 
 ## 5. Delete
 ### 5.1. Deleting by id
 DELETE {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b7809e
+Authorization: {{auth}}
 
 ### 5.2. Deleting without data
 DELETE {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b78091
+Authorization: {{auth}}
