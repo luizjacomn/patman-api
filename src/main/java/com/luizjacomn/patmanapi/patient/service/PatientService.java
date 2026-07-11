@@ -32,6 +32,21 @@ public class PatientService {
     }
 
     /**
+     * Método responsável por editar pacientes.
+     * @param id do paciente a ser buscado
+     * @param patient dados de paciente que serão salvos
+     * @throws {@link ResourceNotFoundException} caso não encontre
+     */
+    @Transactional
+    public void editar(UUID id, Patient patient) {
+        this.buscarPorId(id);
+
+        patient.setId(id);
+
+        patientRepository.save(patient);
+    }
+
+    /**
      * Método responsável por listar os pacientes cadastrados (pode filtrar dados)
      * @param patientFilter filtro para os dados (opcionais)
      * @return {@link List}<{@link Patient}> com os dados retornados

@@ -25,16 +25,41 @@ content-type: application/json
     "phone": "(99) 9 9999-9999"
 }
 
-## 2. List
-### 2.1. List all
+## 2. Edit
+### 2.1. Edit with success
+PUT {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b7809e HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Fulano Edited",
+    "cpf": "548.030.450-03",
+    "birthDate": "2001-01-01",
+    "email": "fulano@mail.com",
+    "phone": "(99) 9 9999-9999"
+}
+
+### 2.2. Edit without data
+PUT {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b78091 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Fulano Edited",
+    "cpf": "548.030.450-03",
+    "birthDate": "2001-01-01",
+    "email": "fulano@mail.com",
+    "phone": "(99) 9 9999-9999"
+}
+
+## 3. List
+### 3.1. List all
 GET {{baseUrl}}
 
-### 2.2. List filtered data
+### 3.2. List filtered data
 GET {{baseUrl}}?name=ful&cpf=54
 
-## 3. Find
-### 3.1. Finding by id
-GET {{baseUrl}}/f5b45923-0749-48ec-9db8-e2941db149ac
+## 4. Find
+### 4.1. Finding by id
+GET {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b7809e
 
-### 3.2. Finding without data
-GET {{baseUrl}}/f5b45923-0749-48ec-9db8-e2941db149a1
+### 4.2. Finding without data
+GET {{baseUrl}}/46525b00-f8ec-4b70-873e-6bcfd5b78091
