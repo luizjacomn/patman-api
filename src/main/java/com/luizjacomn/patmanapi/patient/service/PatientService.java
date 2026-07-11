@@ -2,9 +2,13 @@ package com.luizjacomn.patmanapi.patient.service;
 
 import com.luizjacomn.patmanapi.patient.model.entity.Patient;
 import com.luizjacomn.patmanapi.patient.repository.PatientRepository;
+import com.luizjacomn.patmanapi.patient.repository.filter.PatientFilter;
+import com.luizjacomn.patmanapi.patient.repository.spec.PatientSpecs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,6 +27,15 @@ public class PatientService {
         // Regras de negócio aqui
 
         return patientRepository.save(patient);
+    }
+
+    /**
+     * Métodos responsável por listar os pacientes cadastrados (pode filtrar dados)
+     * @param patientFilter filtro para os dados (opcionais)
+     * @return {@link List}<{@link Patient}> com os dados retornados
+     */
+    public List<Patient> list(PatientFilter patientFilter) {
+        return patientRepository.findAll(PatientSpecs.filtering(patientFilter));
     }
 
 }

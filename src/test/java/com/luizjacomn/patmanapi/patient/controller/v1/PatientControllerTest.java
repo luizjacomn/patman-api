@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,6 +27,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Sql(
+    scripts = { "/scripts/delete.sql", "/scripts/patient_controller_test.sql" },
+    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+)
 class PatientControllerTest extends BaseTest {
 
     private static final String URI = "/patients";
@@ -102,7 +107,6 @@ class PatientControllerTest extends BaseTest {
 
         @SneakyThrows
         @Test
-        @Sql(statements = "INSERT INTO patients (name, cpf, birth_date) VALUES ('Beltrano Salvo', '98053710000', NOW())")
         void shouldThrowExceptionWhenCpfExists() {
             // arrange
             PatientRequest patientRequest = new PatientRequest("Beltrano", "980.537.100-00", LocalDate.now(), null, null);
@@ -118,6 +122,53 @@ class PatientControllerTest extends BaseTest {
             resultActions
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message" ).value("Erro desconhecido. Por favor, tente novamente em instantes. Caso o erro persista, entre em contato com o suporte!"));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("List patients tests")
+    class List {
+
+        @SneakyThrows
+        @Test
+        @DisplayName("Listing all data")
+        void shouldListAllData() {
+            // arrange
+            RequestBuilder request = MockMvcRequestBuilders.get(URI)
+                .accept(MediaType.APPLICATION_JSON);
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3));
+        }
+
+        @SneakyThrows
+        @ParameterizedTest
+        @CsvSource(value = {
+            "rano, null, 2",
+            "sal, 944, 1",
+            "null, 98, 1",
+        }, nullValues = "null")
+        @DisplayName("Listing filtered data")
+        void shouldListFilteredData(String name, String cpf, Integer length) {
+            // arrange
+            RequestBuilder request = MockMvcRequestBuilders.get(URI)
+                .accept(MediaType.APPLICATION_JSON)
+                .param("name", name)
+                .param("cpf", cpf);
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(length));
         }
 
     }
