@@ -1,0 +1,33 @@
+@baseUrl=http://localhost:8080/patients
+
+## 1. Save
+### 1.1. Save with success
+POST {{baseUrl}} HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Fulano",
+    "cpf": "548.030.450-03",
+    "birthDate": "2000-01-01",
+    "email": "fulano@mail.com",
+    "phone": "(99) 9 9999-9999"
+}
+
+### 1.2. Save with validation fail
+POST {{baseUrl}} HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Fulano",
+    "cpf": "111.222.333-44",
+    "birthDate": "2000-01-01",
+    "email": "fulano@mail.com",
+    "phone": "(99) 9 9999-9999"
+}
+
+## 2. List
+### 2.1. List all
+GET {{baseUrl}}
+
+### 2.2. List filtered data
+GET {{baseUrl}}?name=ful&cpf=54
