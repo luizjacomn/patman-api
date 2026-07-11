@@ -4,6 +4,7 @@ import com.luizjacomn.patmanapi.patient.controller.v1.dto.PatientDetailResponse;
 import com.luizjacomn.patmanapi.patient.controller.v1.dto.PatientRequest;
 import com.luizjacomn.patmanapi.patient.controller.v1.dto.PatientResponse;
 import com.luizjacomn.patmanapi.patient.controller.v1.mapper.PatientDetailResponseMapper;
+import com.luizjacomn.patmanapi.patient.controller.v1.openapi.PatientOpenApi;
 import com.luizjacomn.patmanapi.patient.repository.filter.PatientFilter;
 import com.luizjacomn.patmanapi.patient.controller.v1.mapper.PatientRequestMapper;
 import com.luizjacomn.patmanapi.patient.controller.v1.mapper.PatientResponseMapper;
@@ -29,9 +30,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/patients")
+@RequestMapping("/v1/patients")
 @RequiredArgsConstructor
-public class PatientController {
+public class PatientController implements PatientOpenApi {
 
     private final PatientService patientService;
 
@@ -42,6 +43,7 @@ public class PatientController {
     private final PatientDetailResponseMapper patientDetailResponseMapper;
 
     @PostMapping
+    @Override
     public ResponseEntity<Void> save(@RequestBody @Valid PatientRequest request) {
         Patient pacienteSalvo = patientService.salvar(patientRequestMapper.to(request));
 
@@ -56,22 +58,26 @@ public class PatientController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void save(@PathVariable UUID id, @RequestBody @Valid PatientRequest request) {
+    @Override
+    public void edit(@PathVariable UUID id, @RequestBody @Valid PatientRequest request) {
         patientService.editar(id, patientRequestMapper.to(request));
     }
 
     @GetMapping
+    @Override
     public List<PatientResponse> list(PatientFilter patientFilter) {
         return patientResponseMapper.toList(patientService.listar(patientFilter));
     }
 
     @GetMapping("/{id}")
+    @Override
     public PatientDetailResponse find(@PathVariable UUID id) {
         return patientDetailResponseMapper.to(patientService.buscarPorId(id));
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
+    @Override
     public void delete(@PathVariable UUID id) {
         patientService.deletar(id);
     }
