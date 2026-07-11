@@ -37,4 +37,12 @@ public class OpenApiConfiguration {
             .build();
     }
 
+    @Bean
+    public GroupedOpenApi actuatorApi() {
+        return GroupedOpenApi.builder()
+            .group("actuator")
+            .pathsToMatch("/actuator/**")
+            .build();
+    }
+
 }

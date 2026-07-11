@@ -19,6 +19,15 @@ flyway:
         show-sql: false
         open-in-view: false
 
+springdoc:
+    show-actuator: true
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,metrics
+
 logging:
     level:
         com.luizjacomn.patmanapi: WARN
