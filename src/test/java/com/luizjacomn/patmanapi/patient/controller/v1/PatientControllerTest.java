@@ -173,4 +173,43 @@ class PatientControllerTest extends BaseTest {
 
     }
 
+    @Nested
+    @DisplayName("Find patient tests")
+    class FindById {
+
+        @SneakyThrows
+        @Test
+        @DisplayName("Finding by id")
+        void shouldFindById() {
+            // arrange
+            RequestBuilder request = MockMvcRequestBuilders.get(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149ac")
+                .accept(MediaType.APPLICATION_JSON);
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Fulano Salvo"));
+        }
+
+        @SneakyThrows
+        @Test
+        void shouldThrowExceptionWhenPatientNotExists() {
+            // arrange
+            RequestBuilder request = MockMvcRequestBuilders.get(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149a1")
+                .accept(MediaType.APPLICATION_JSON);
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message" ).value("Recurso não encontrado para o filtro informado: id = f5b45923-0749-48ec-9db8-e2941db149a1"));
+        }
+
+    }
+
 }

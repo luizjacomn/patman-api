@@ -31,3 +31,10 @@ GET {{baseUrl}}
 
 ### 2.2. List filtered data
 GET {{baseUrl}}?name=ful&cpf=54
+
+## 3. Find
+### 3.1. Finding by id
+GET {{baseUrl}}/f5b45923-0749-48ec-9db8-e2941db149ac
+
+### 3.2. Finding without data
+GET {{baseUrl}}/f5b45923-0749-48ec-9db8-e2941db149a1
