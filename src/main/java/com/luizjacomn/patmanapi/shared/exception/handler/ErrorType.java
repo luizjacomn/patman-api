@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorType {
 
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Validation failed"),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "Not found"),
     ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final int statusCode;
