@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 class PatientControllerTest extends BaseTest {
 
-    private static final String URI = "/patients";
+    private static final String URI = "/v1/patients";
 
     @Autowired
     private PatientRepository patientRepository;
