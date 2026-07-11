@@ -46,6 +46,9 @@ public class Patient implements Serializable {
     @Column(columnDefinition = "TEXT", nullable = false, unique = true)
     private String cpf;
 
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
+
     @EqualsAndHashCode.Include
     @Column(columnDefinition = "TEXT")
     private String email;
@@ -53,9 +56,6 @@ public class Patient implements Serializable {
     @EqualsAndHashCode.Include
     @Column(columnDefinition = "TEXT")
     private String phone;
-
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private ZonedDateTime createdAt;
