@@ -4,7 +4,6 @@ import com.luizjacomn.patmanapi.shared.exception.handler.CustomAuthenticationEnt
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,14 +24,13 @@ public class SecurityConfiguration {
                 .requestMatchers(
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
-                    "/swagger-ui.html"
+                    "/swagger-ui.html",
+                    "/actuator/**"
                 ).permitAll()
                 .anyRequest()
                 .authenticated())
-            .httpBasic(Customizer.withDefaults())
-            .exceptionHandling(exception ->
-                exception.authenticationEntryPoint(authenticationEntryPoint)
-            )
+            .httpBasic(basic ->
+                basic.authenticationEntryPoint(authenticationEntryPoint))
             .build();
     }
 

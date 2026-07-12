@@ -28,17 +28,22 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Sql(
-    scripts = { "/scripts/delete.sql", "/scripts/patient_controller_test.sql" },
-    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+    scripts = { "/scripts/delete.sql", "/scripts/create-user.sql", "/scripts/patient_controller_test.sql" },
+    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
 )
 class PatientControllerTest extends BaseTest {
 
     private static final String URI = "/v1/patients";
+
+    public static final String USER_ADMIN = "admin";
+
+    public static final String PASS_ADMIN = "patman";
 
     @Autowired
     private PatientRepository patientRepository;
@@ -53,6 +58,7 @@ class PatientControllerTest extends BaseTest {
         void shouldSaveRequestData(String name, String cpf, String birthDate, String email, String phone) {
             // arrange
             RequestBuilder request = MockMvcRequestBuilders.post(URI)
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(new PatientRequest(name, cpf, LocalDate.parse(birthDate), email, phone)));
@@ -81,6 +87,7 @@ class PatientControllerTest extends BaseTest {
         void shouldValidateRequestData(String name, String cpf, String birthDate, String email, String phone, String message) {
             // arrange
             RequestBuilder request = MockMvcRequestBuilders.post(URI)
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(new PatientRequest(name, cpf, ObjectUtils.nonNullOrElse(birthDate, LocalDate::parse), email, phone)));
@@ -119,6 +126,7 @@ class PatientControllerTest extends BaseTest {
             // arrange
             PatientRequest patientRequest = new PatientRequest("Beltrano", "980.537.100-00", LocalDate.now(), null, null);
             RequestBuilder request = MockMvcRequestBuilders.post(URI)
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(patientRequest));
@@ -132,6 +140,26 @@ class PatientControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.message").value("Erro desconhecido. Por favor, tente novamente em instantes. Caso o erro persista, entre em contato com o suporte!"));
         }
 
+        @SneakyThrows
+        @Test
+        void shouldThrowExceptionWhenUnauthorized() {
+            // arrange
+            PatientRequest patientRequest = new PatientRequest("Beltrano", "980.537.100-00", LocalDate.now(), null, null);
+            RequestBuilder request = MockMvcRequestBuilders.post(URI)
+                .with(httpBasic(USER_ADMIN, "wrong password"))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(patientRequest));
+
+            // act
+            ResultActions resultActions = mockMvc.perform(request);
+
+            // assert
+            resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Você não está autorizado a acessar esse recurso!"));
+        }
+
     }
 
     @Nested
@@ -143,6 +171,7 @@ class PatientControllerTest extends BaseTest {
         void shouldEditPatient() {
             // arrange
             RequestBuilder request = MockMvcRequestBuilders.put(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149ac")
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(new PatientRequest("Fulano Edit", "207.989.070-02", LocalDate.now().minusYears(18), null, null)));
@@ -166,6 +195,7 @@ class PatientControllerTest extends BaseTest {
             String id = UUID.randomUUID().toString();
 
             RequestBuilder request = MockMvcRequestBuilders.put(URI.concat("/{id}"), id)
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(new PatientRequest("Fulano Edit", "207.989.070-02", LocalDate.now().minusYears(18), null, null)));
@@ -193,6 +223,7 @@ class PatientControllerTest extends BaseTest {
         void shouldListAllData() {
             // arrange
             RequestBuilder request = MockMvcRequestBuilders.get(URI)
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON);
 
             // act
@@ -215,6 +246,7 @@ class PatientControllerTest extends BaseTest {
         void shouldListFilteredData(String name, String cpf, Integer length) {
             // arrange
             RequestBuilder request = MockMvcRequestBuilders.get(URI)
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON)
                 .param("name", name)
                 .param("cpf", cpf);
@@ -240,6 +272,7 @@ class PatientControllerTest extends BaseTest {
         void shouldFindById() {
             // arrange
             RequestBuilder request = MockMvcRequestBuilders.get(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149ac")
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON);
 
             // act
@@ -256,6 +289,7 @@ class PatientControllerTest extends BaseTest {
         void shouldThrowExceptionWhenPatientNotExists() {
             // arrange
             RequestBuilder request = MockMvcRequestBuilders.get(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149a1")
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN))
                 .accept(MediaType.APPLICATION_JSON);
 
             // act
@@ -277,7 +311,8 @@ class PatientControllerTest extends BaseTest {
         @Test
         void shouldDeletePatient() {
             // arrange
-            RequestBuilder request = MockMvcRequestBuilders.delete(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149ac");
+            RequestBuilder request = MockMvcRequestBuilders.delete(URI.concat("/{id}"), "f5b45923-0749-48ec-9db8-e2941db149ac")
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN));
 
             // act
             ResultActions resultActions = mockMvc.perform(request);
@@ -295,7 +330,8 @@ class PatientControllerTest extends BaseTest {
             // arrange
             String id = UUID.randomUUID().toString();
 
-            RequestBuilder request = MockMvcRequestBuilders.delete(URI.concat("/{id}"), id);
+            RequestBuilder request = MockMvcRequestBuilders.delete(URI.concat("/{id}"), id)
+                .with(httpBasic(USER_ADMIN, PASS_ADMIN));
 
             // act
             ResultActions resultActions = mockMvc.perform(request);
