@@ -22,13 +22,17 @@ public class SecurityConfiguration {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/actuator/**"
-                ).permitAll()
+                    "/v3/api-docs/**",
+                    "/actuator/health",
+                    "/actuator/info")
+                .permitAll()
+                .requestMatchers("/actuator/**")
+                .authenticated()
                 .anyRequest()
-                .authenticated())
+                .authenticated()
+            )
             .httpBasic(basic ->
                 basic.authenticationEntryPoint(authenticationEntryPoint))
             .build();

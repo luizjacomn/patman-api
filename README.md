@@ -11,6 +11,8 @@ O projeto implementa um **CRUD** completo de pacientes, documentação da **_API
 * Java 17
 * Spring Boot 3
 * Spring Data JPA
+* Spring Security (Basic Auth)
+* Spring Actuator (Métricas)
 * PostgreSQL
 * Flyway
 * Springdoc OpenAPI (Swagger)
@@ -76,9 +78,11 @@ docker compose up -d
 
 Após iniciar a aplicação, a documentação estará disponível em:
 
-```text
 http://localhost:8080/swagger-ui/index.html
-```
+
+A especificação OpenAPI também pode ser acessada em:
+
+http://localhost:8080/v3/api-docs/v1
 
 ---
 
@@ -99,8 +103,7 @@ A aplicação foi desenvolvida considerando práticas que facilitam sua evoluç�
 * Arquitetura em camadas para facilitar evolução e manutenção.
 
 Evolução:
-* Pool de conexões **_HikariCP_** (configuração padrão do **_Spring Data_**);
-* Paginação preparada para consultas;
+* Paginação para a listagem de pacientes;
 * Caso necessário, implementação de cache.
 
 ---
@@ -140,7 +143,8 @@ Foram adotadas práticas visando facilitar a manutenção do projeto:
 * Versionamento do banco de dados (**_Flyway_**);
 * Documentação automática via **_OpenAPI_**;
 * Configuração por variáveis de ambiente (`.env`);
-* Código preparado para evolução da autenticação sem alterações nas regras de negócio (separação por versões: `/v1`).
+* Código preparado para evolução da autenticação sem alterações nas regras de negócio;
+* Separação por versões: `/v1`.
 
 Evolução:
 * Implementação de CI/CD (**_pipeline_** com verificação de testes, qualidade (**_SonarQube_**, por exemplo) e _deploy_);
