@@ -2,7 +2,7 @@
 
 API REST desenvolvida em **Java 17** e **Spring Boot** para gerenciamento de pacientes.
 
-O projeto implementa um CRUD completo de pacientes, documentação da API, testes e versionamento do banco de dados, seguindo boas práticas de desenvolvimento e arquitetura.
+O projeto implementa um **CRUD** completo de pacientes, documentação da **_API_**, testes e versionamento do banco de dados, seguindo boas práticas de desenvolvimento e arquitetura.
 
 ---
 
@@ -30,7 +30,7 @@ O projeto implementa um CRUD completo de pacientes, documentação da API, teste
 * Exclusão de pacientes
 * Validação de dados de entrada
 * Tratamento global de exceções
-* Documentação automática da API (OpenApi)
+* Documentação automática da **_API_** (**_OpenApi_**)
 
 ---
 
@@ -39,26 +39,17 @@ O projeto implementa um CRUD completo de pacientes, documentação da API, teste
 O projeto foi organizado em camadas para promover baixo acoplamento e facilitar manutenção e evolução.
 
 ```text
-Domain
-    ↓
-    Controller
-        ↓
-    Mapper
-        ↓
-    Service
-        ↓
-    Repository
-        ↓
-    Entity
+Domain ->
+    Controller -> Mapper -> Service -> Repository -> Entity
 ```
 
-As entidades representam o domínio da aplicação, enquanto DTOs são utilizados apenas na camada de apresentação para entrada e saída de dados.
+As entidades representam o domínio da aplicação, enquanto os **DTOs** são utilizados apenas na camada de apresentação para entrada e saída de dados.
 
 ---
 
 ## Banco de dados
 
-O banco de dados é versionado utilizando **Flyway**, garantindo controle de versões do esquema e reprodutibilidade entre ambientes.
+O banco de dados (**_PostgreSQL_**) é versionado utilizando **_Flyway_**, garantindo controle de versões do esquema e reprodutibilidade entre ambientes.
 
 As migrations são executadas automaticamente na inicialização da aplicação.
 
@@ -93,7 +84,7 @@ http://localhost:8080/swagger-ui/index.html
 
 ## Testes
 
-* Foram criados testes de integração para todos os endpoints do CRUD de pacientes;
+* Foram criados testes de integração para todos os endpoints do **CRUD** de pacientes;
 * Foram criados arquivos `.http` na pasta `/requests` para versionar a evolução das chamadas.
 
 ---
@@ -103,12 +94,12 @@ http://localhost:8080/swagger-ui/index.html
 A aplicação foi desenvolvida considerando práticas que facilitam sua evolução para ambientes de produção.
 
 * API stateless;
-* Versionamento de banco utilizando Flyway;
-* Estrutura preparada para execução em containers Docker;
+* Versionamento de banco utilizando **_Flyway_**;
+* Estrutura preparada para execução em containers **_Docker_**;
 * Arquitetura em camadas para facilitar evolução e manutenção.
 
 Evolução:
-* Pool de conexões HikariCP.
+* Pool de conexões **_HikariCP_** (configuração padrão do **_Spring Data_**);
 * Paginação preparada para consultas;
 * Caso necessário, implementação de cache.
 
@@ -116,15 +107,23 @@ Evolução:
 
 ## Considerações sobre segurança
 
-A aplicação não possui camada de segurança atualmente.
+A aplicação possui uma camada básica de segurança (**HTTP Basic**) atualmente.
+
+Foi criado um arquivo (`src/main/resources/db/load-users.sql`) que contém o _insert_ para um usuário a ser usado para testar
+a aplicação, visto que foi criado apenas o **CRUD** para a entidade `Patient`.
+
+Credenciais padrão:
+```text
+Usuário: admin
+Senha: patman
+```
 
 Como evolução natural da solução, recomenda-se:
 
-* Implementação de pelo menos uma camada mínima de segurança (HTTP Basic por exemplo);
-* Evolução para autenticação baseada em **JWT**;
+* Evolução para autenticação baseada em **_JWT_**;
 * Configuração de expiração e renovação de tokens;
-* Controle de permissões baseado em perfis e permissões;
-* Limitação de requisições (Rate Limiting) para proteção contra abuso;
+* Controle de permissões baseado em perfis;
+* Limitação de requisições (**_Rate Limiting_**) para proteção contra abuso;
 * Auditoria de autenticação e ações sensíveis.
 
 ---
@@ -133,12 +132,17 @@ Como evolução natural da solução, recomenda-se:
 
 Foram adotadas práticas visando facilitar a manutenção do projeto:
 
-* Configurações por ambiente (default e dev);
+* Configurações por ambiente (`default` e `dev`);
 * Separação de responsabilidades em camadas;
-* Utilização de DTOs para desacoplamento da camada HTTP;
+* Utilização de **DTOs** para desacoplamento da camada **HTTP**;
 * Tratamento global de exceções;
-* Validação utilizando Bean Validation;
-* Versionamento do banco de dados (Flyway);
-* Documentação automática via OpenAPI;
-* Configuração por variáveis de ambiente (.env);
-* Código preparado para evolução da autenticação sem alterações nas regras de negócio (separação por versões: /v1).
+* Validação utilizando **_Bean Validation_**;
+* Versionamento do banco de dados (**_Flyway_**);
+* Documentação automática via **_OpenAPI_**;
+* Configuração por variáveis de ambiente (`.env`);
+* Código preparado para evolução da autenticação sem alterações nas regras de negócio (separação por versões: `/v1`).
+
+Evolução:
+* Implementação de CI/CD (**_pipeline_** com verificação de testes, qualidade (**_SonarQube_**, por exemplo) e _deploy_);
+* Abstração de componentes (_repositories_, _services_, etc.), para facilitar uma eventual troca, caso necessário;
+* Aplicação de padrões de projeto a medida que a aplicação cresça.
